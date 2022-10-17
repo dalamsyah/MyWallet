@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_budgets/screen/category.dart';
 import 'package:my_budgets/screen/home.dart';
 import 'package:my_budgets/screen/login.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
   final routes = <String, WidgetBuilder>{
     LoginPage.tag: (context) => LoginPage(),
     HomePage.tag: (context) => HomePage(),
+    CategoriesPage.tag: (context) => CategoriesPage(),
   };
 
   // This widget is the root of your application.

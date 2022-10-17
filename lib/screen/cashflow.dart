@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:my_budgets/models/m_models.dart';
 import 'package:my_budgets/repo/calc_cashflow.dart';
+import 'package:my_budgets/repo/view_model.dart';
 
 
 class CashFlowPage extends StatefulWidget {
@@ -29,6 +30,9 @@ class _CashFlowInput extends State<CashFlowPage> {
   late ReccurenceModel selectedReccurenceValue;
 
   TextEditingController _controllerAmount = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -91,19 +95,44 @@ class _CashFlowInput extends State<CashFlowPage> {
                       color: categories.firstWhere((element) => element.id == datas[index].category_id).type_category == "income" ? Colors.green : Colors.red,
                     ),
                     Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                        child: 
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(CurrencyFormat.convertToIdr(datas[index].amount, 2)),
-                              Text('Budget: ${budgets.firstWhere((element) => element.id == datas[index].budget_id).budget_name}')
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                    Text(CurrencyFormat.convertToIdr(datas[index].amount, 2)),
+                                  Text('Budget: ${budgets.firstWhere((element) => element.id == datas[index].budget_id).budget_name}')
+                                ],
+                              ),
+                              Text('Category: ${categories.firstWhere((element) => element.id == datas[index].category_id).category_name}'),
                             ],
-                          )),
-                          Text('Category: ${categories.firstWhere((element) => element.id == datas[index].category_id).category_name}'),
-                        ],
-                      ),
+                          ),
+                        )
                     )
+                    // Container(
+                    //   color: Colors.red,
+                    //
+                    // ),
+
+                    // Expanded(
+                    //   child: Column(
+                    //     children: [
+                    //       Expanded(child: Row(
+                    //         crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //         children: [
+                    //           Text(CurrencyFormat.convertToIdr(datas[index].amount, 2)),
+                    //           Text('Budget: ${budgets.firstWhere((element) => element.id == datas[index].budget_id).budget_name}')
+                    //         ],
+                    //       )),
+                    //       Text('Category: ${categories.firstWhere((element) => element.id == datas[index].category_id).category_name}'),
+                    //     ],
+                    //   ),
+                    // )
 
                   ]),
                 ),
@@ -134,6 +163,13 @@ class _CashFlowInput extends State<CashFlowPage> {
 
   }
 
+  // Method to show snackbar with 'message'.
+  _showSnackbar(String message) {
+    final snackBar = SnackBar(content: Text(message));
+    // _scaffoldKey.currentState.showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void bottomSheet() {
 
     _controllerAmount.text = '';
@@ -151,6 +187,15 @@ class _CashFlowInput extends State<CashFlowPage> {
               },
               keyboardType: TextInputType.number,
               autofocus: false,
+              // onFieldSubmitted: (amount) {
+              //   final formattedPrice = CurrencyFormat.convertToIdr(amount, 2);
+              //   debugPrint('Formatted $formattedPrice');
+              //   _controllerAmount.value = TextEditingValue(
+              //     text: formattedPrice,
+              //     selection:
+              //     TextSelection.collapsed(offset: formattedPrice.length),
+              //   );
+              // },
               decoration: InputDecoration(
                 hintText: '123456',
                 contentPadding: const EdgeInsets.fromLTRB(
@@ -181,33 +226,51 @@ class _CashFlowInput extends State<CashFlowPage> {
                         )
                     ),
                     onPressed: () {
+
+                      CashFlowModel data = CashFlowModel(
+                          id: datas.length + 1,
+                          user_id: users.first.id,
+                          category_id: selectedCategoryValue.id,
+                          wallet_id: selectedWalletValue.id,
+                          budget_id: selectedBudgetValue.id,
+                          balance_budget: 0,
+                          balance_wallet: 0,
+                          amount: 123,
+                          note: "-"
+
+                      );
+
+                      ViewModelCashFlow().submitForm(data, (String response) {
+                        print("Response: $response");
+
+                        if (response == "SUCCESS") {
+                          // Feedback is saved succesfully in Google Sheets.
+                          _showSnackbar("Submitted");
+                        } else {
+                          // Error Occurred while saving data in Google Sheets.
+                          _showSnackbar("Error Occurred!");
+                        }
+                      });
+
                       setState(() =>
                       {
                         datas.add(
-                            CashFlowModel(
-                                id: datas.length + 1,
-                                user_id: users.first.id,
-                                category_id: selectedCategoryValue.id,
-                                wallet_id: selectedWalletValue.id,
-                                budget_id: selectedBudgetValue.id,
-                                balance_budget: 0,
-                                balance_wallet: 0,
-                                amount: double.parse(_controllerAmount.text),
-                                note: "-"
-
-                            )
+                            data
                         )
 
                       });
                       print(datas.last);
 
-                      WalletModel walletModel = wallets.firstWhere((element) => element.id == selectedWalletValue.id);
-                      walletModel.amount = walletModel.amount - double.parse(_controllerAmount.text);
+                      // WalletModel walletModel = wallets.firstWhere((element) => element.id == selectedWalletValue.id);
+                      // walletModel.amount = walletModel.amount - double.parse(_controllerAmount.text);
+                      //
+                      // wallets.remove(walletModel);
+                      // wallets.add(walletModel);
+                      //
+                      // wallets.sort((a, b) => a.id.compareTo(b.id));
 
-                      wallets.remove(walletModel);
-                      wallets.add(walletModel);
-
-                      wallets.sort((a, b) => a.id.compareTo(b.id));
+                      _controllerAmount.text = '';
+                      Navigator.pop(context);
 
                     },
                     child: const Text('Submit'),

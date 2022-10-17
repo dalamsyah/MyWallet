@@ -27,6 +27,15 @@ class CategoryModel {
     this.id = 0, this.category_name, this.type_category, this.user_id = 0
   });
 
+  factory CategoryModel.fromMap(Map<String, dynamic> json) {
+    return CategoryModel(
+      id: json['id'],
+      category_name: json['category_name'],
+      type_category: json['type_category'],
+      user_id: json['user_id'],
+    );
+  }
+
   @override
   String toString() {
     return 'CategoryModel{id: $id, category_name: $category_name, type_category: $type_category, user_id: $user_id}';
@@ -112,7 +121,7 @@ class CashFlowModel {
   double balance_wallet = 0;
   double balance_budget = 0;
   double amount = 0;
-  String? note;
+  String? note = '';
 
   CashFlowModel({
       this.id = 0,
@@ -125,6 +134,32 @@ class CashFlowModel {
       this.amount = 0,
       this.note
   });
+
+  factory CashFlowModel.fromMap(Map<String, dynamic> json) {
+    return CashFlowModel(
+      id: json['id'],
+      user_id: json['user_id'],
+      category_id: json['category_id'],
+      wallet_id: json['wallet_id'],
+      budget_id: json['budget_id'],
+      balance_wallet: json['balance_wallet'],
+      balance_budget: json['balance_budget'],
+      amount: json['amount'],
+      note: json['note'],
+    );
+  }
+
+  Map toJson() => {
+    'id': id,
+    'user_id': user_id,
+    'category_id': category_id,
+    'wallet_id': wallet_id,
+    'budget_id': budget_id,
+    'balance_wallet': balance_wallet,
+    'balance_budget': balance_budget,
+    'amount': amount,
+    'note': note,
+  };
 
   @override
   String toString() {

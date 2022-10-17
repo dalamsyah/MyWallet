@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_budgets/screen/cashflow.dart';
+import 'package:my_budgets/screen/category.dart';
 
 class HomePage extends StatefulWidget {
   static String tag = 'home-page';
@@ -17,10 +18,7 @@ class _HomePage extends State<HomePage> {
   final _widgetOptions = [
     CashFlowPage(),
     CashFlowListPage(),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
+    CategoriesPage(),
   ];
 
   void _onItemTapped(int index) {
